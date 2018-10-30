@@ -88,7 +88,6 @@ function telegram_processCommand($commandline, $chat, $user, $messageId)
 	if (strpos($commandline, '@') > -1)
 		$commandline = mb_substr($commandline, 0, mb_strpos($commandline, '@', 0, 'UTF-8'), 'UTF-8');
 
-
 	if (strlen($commandline) == 0) {
 		telegram_sendMessage('Empty command? Really? Why?', $chat);
 		return; // not a command
@@ -103,7 +102,7 @@ function telegram_processCommand($commandline, $chat, $user, $messageId)
 			break;
 
 		default:
-			sendMessage('Bad command.');
+			telegram_sendMessage('Bad command.', $chat);
 	}
 
 }
@@ -155,8 +154,8 @@ function telegram_processAttach($message) {
 	return $attachId;
 }
 
-function telegram_processMessage($message, $isEdit) {
-	$user = (int)$message['from']['id'];
+function telegram_processMessage($message, $isEdit, $isFromChannel) {
+	$user = ($isFromChannel) ? -1 : (int)$message['from']['id'];
 	$chat = $message['chat']['id'];
 	$externalId = $chat.'_'.$message['message_id'];
 
@@ -168,7 +167,7 @@ function telegram_processMessage($message, $isEdit) {
 
 	if ($text[0] === '/') {
 		telegram_processCommand($text, $chat, $user, $message['message_id']);
-	} else {
+	} elseif ($isFromChannel) { // won't save direct messages
 		if ($isEdit) {
 			db_updatePost($externalId, $text);
 		} else {
@@ -192,9 +191,16 @@ function telegram_processInput() {
 		die('Bad event data.');
 
 	if (!empty($event['message'])) {
-		telegram_processMessage($event['message'], false);
+		telegram_processMessage($event['message'], false, false);
+
 	} elseif (!empty($event['edited_message'])) {
-		telegram_processMessage($event['edited_message'], true);
+		telegram_processMessage($event['edited_message'], true, false);
+
+	} elseif (!empty($event['channel_post'])) {
+		telegram_processMessage($event['channel_post'], false, true);
+
+	} elseif (!empty($event['edited_channel_post'])) {
+		telegram_processMessage($event['edited_channel_post'], true, true);
 	}
 }
 
