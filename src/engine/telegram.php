@@ -175,7 +175,7 @@ function telegram_processAttach($message) {
 }
 
 function telegram_processMessage($message, $isEdit, $isFromChannel) {
-	$user = ($isFromChannel) ? -1 : (int)$message['from']['id'];
+	$user = (int)$message['from']['id'];
 	$chat = $message['chat']['id'];
 	$externalId = $chat.'_'.$message['message_id'];
 
@@ -189,7 +189,11 @@ function telegram_processMessage($message, $isEdit, $isFromChannel) {
 		telegram_processCommand($text, $chat, $user, $message['message_id']);
 	} elseif ($isFromChannel && $chat === config_getVal('channel_id')) { // won't save direct messages
 		if ($isEdit) {
-			db_updatePost($externalId, $text);
+			if ($text === '-') { // artifical removal, Telegram does not send delete event
+				db_deletePost($externalId);
+				curl_request('deleteMessage', 'get', Array('chat_id' => $chat, 'message_id' => $message['message_id']));
+			} else
+				db_updatePost($externalId, $text);
 		} else {
 			$attachId = ($containsAttach) ? telegram_processAttach($message) : null;
 			db_savePost($externalId, $text, $attachId);
@@ -206,6 +210,8 @@ function telegram_processInput() {
 		die('Bad Telegram API Key!');
 
 	$event = json_decode(file_get_contents('php://input'), true);
+
+	error_log(print_r($event, true));
 
 	if (empty($event))
 		die('Bad event data.');

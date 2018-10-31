@@ -20,6 +20,10 @@ function db_updatePost($post_external_id, $post_text) {
 	return sqlQuery('UPDATE post SET post_text = ? WHERE post_external_id = ?', $post_text, $post_external_id);
 }
 
+function db_deletePost($post_external_id) {
+	return sqlQuery('DELETE FROM post WHERE post_external_id = ?', $post_external_id);
+}
+
 function db_getAttach($attach_filename) {
 	$res = sqlQuery('SELECT * FROM attach WHERE attach_filename = ?', $attach_filename)->fetch();
 	return (empty($res)) ? false : $res;
