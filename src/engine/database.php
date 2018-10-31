@@ -20,9 +20,9 @@ function db_updatePost($post_external_id, $post_text) {
 	return sqlQuery('UPDATE post SET post_text = ? WHERE post_external_id = ?', $post_text, $post_external_id);
 }
 
-function db_attachExists($attach_filename) {
-	$res = sqlQuery('SELECT count(*) as cnt FROM attach WHERE attach_filename = ?', $attach_filename)->fetch();
-	return ($res['cnt'] > 0) ? true : false;
+function db_getAttach($attach_filename) {
+	$res = sqlQuery('SELECT * FROM attach WHERE attach_filename = ?', $attach_filename)->fetch();
+	return (empty($res)) ? false : $res;
 }
 
 function db_getAttaches() {

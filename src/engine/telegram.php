@@ -32,7 +32,7 @@ function curl_request ($method, $type, $data = Array())
 		return false;
 }
 
-function telegram_getFile ($file_id, $filename, $attachType)
+function telegram_getFile ($file_id, $attachType)
 {
 
 	$filedata_raw = curl_request('getFile', 'get', Array('file_id' => $file_id));
@@ -44,16 +44,18 @@ function telegram_getFile ($file_id, $filename, $attachType)
 		return false;
 
 	$filepath = $filedata['result']['file_path'];
+	$filename = md5($file_id).'.'.pathinfo($filepath, PATHINFO_EXTENSION);
+	$filelocation = TELEGRAM_CONTENT_SAVE_PATH.'/'.$attachType.'/'.$filename;
 
-	$fcontent = file_get_contents('https://api.telegram.org/file/bot'.TELEGRAM_BOT_TOKEN.'/'.$filepath);
+	if (!file_exists($filelocation)) {
+		$fcontent = file_get_contents('https://api.telegram.org/file/bot'.TELEGRAM_BOT_TOKEN.'/'.$filepath);
 
-	if (!$fcontent)
-		return false;
+		if (!$fcontent)
+			return false;
 
-	$filename = $filename.'.'.pathinfo($filepath, PATHINFO_EXTENSION);
-	
-	if (file_put_contents(TELEGRAM_CONTENT_SAVE_PATH.'/'.$attachType.'/'.$filename, $fcontent) === false)
-		return false;
+		if (file_put_contents($filelocation, $fcontent) === false)
+			return false;
+	}
 
 	return $filename;
 }
@@ -144,13 +146,22 @@ function telegram_processAttach($message) {
 		return null;
 	}
 
-	$filename = telegram_getFile($downloadableObject['file_id'], md5($downloadableObject['file_id']), $attachType);
+	$filename = telegram_getFile($downloadableObject['file_id'], $attachType);
 	if (empty($filename)) {
 		error_log ('Could not download contents of the attachment');
 		return null;
 	}
 
-	$attachId = db_saveAttach($filename, $attachType);
+	$attachObject = db_getAttach($filename);
+	$attachId = 0;
+
+	if ($attachObject === false) {
+		$attachId = db_saveAttach($filename, $attachType);
+	} else {
+		error_log('Attach #'.$attachObject['attach_id'].' ['.$attachObject['attach_filename'].'] is being reused');
+		$attachId = $attachObject['attach_id'];
+	}
+	
 	return $attachId;
 }
 
