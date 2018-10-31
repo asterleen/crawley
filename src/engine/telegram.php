@@ -176,8 +176,8 @@ function telegram_processAttach($message) {
 
 function telegram_processMessage($message, $isEdit, $isFromChannel) {
 	$user = (int)$message['from']['id'];
-	$chat = $message['chat']['id'];
-	$externalId = $chat.'_'.$message['message_id'];
+	$chat = (int)$message['chat']['id'];
+	$post = (int)$message['message_id'];
 
 	$containsAttach = (array_key_exists('photo', $message) ||
 					   array_key_exists('voice', $message) ||
@@ -186,17 +186,17 @@ function telegram_processMessage($message, $isEdit, $isFromChannel) {
 	$text = ($containsAttach ? $message['caption'] : $message['text']);
 
 	if ($text[0] === '/') {
-		telegram_processCommand($text, $chat, $user, $message['message_id']);
+		telegram_processCommand($text, $chat, $user, $post);
 	} elseif ($isFromChannel && $chat === config_getVal('channel_id')) { // won't save direct messages
 		if ($isEdit) {
 			if ($text === '-') { // artifical removal, Telegram does not send delete event
-				db_deletePost($externalId);
-				curl_request('deleteMessage', 'get', Array('chat_id' => $chat, 'message_id' => $message['message_id']));
+				db_deletePost($chat, $post);
+				curl_request('deleteMessage', 'get', Array('chat_id' => $chat, 'message_id' => $post));
 			} else
-				db_updatePost($externalId, $text);
+				db_updatePost($chat, $post, $text);
 		} else {
 			$attachId = ($containsAttach) ? telegram_processAttach($message) : null;
-			db_savePost($externalId, $text, $attachId);
+			db_savePost($chat, $post, $text, $attachId);
 		}
 
 		die ('OK');
@@ -210,8 +210,6 @@ function telegram_processInput() {
 		die('Bad Telegram API Key!');
 
 	$event = json_decode(file_get_contents('php://input'), true);
-
-	error_log(print_r($event, true));
 
 	if (empty($event))
 		die('Bad event data.');

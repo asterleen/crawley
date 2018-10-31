@@ -42,26 +42,13 @@ ALTER TABLE ONLY attach
 ALTER TABLE ONLY attach
     ADD CONSTRAINT attach_attach_type_tag_fkey FOREIGN KEY (attach_type_tag) REFERENCES attach_type(attach_type_tag);
 
-CREATE SEQUENCE seq_post_id
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
 CREATE TABLE post (
-    post_id integer DEFAULT nextval('seq_post_id'::regclass) NOT NULL,
-    post_attach integer,
-    post_text character varying(4096),
-    post_timestamp timestamp without time zone DEFAULT now() NOT NULL,
-    post_external_id character varying(32) NOT NULL
+  post_attach integer,
+  post_text character varying(4096),
+  post_timestamp timestamp without time zone NOT NULL DEFAULT now(),
+  post_chat_id bigint NOT NULL,
+  post_message_id integer NOT NULL,
+  CONSTRAINT pk_external_id PRIMARY KEY (post_chat_id, post_message_id),
+  CONSTRAINT post_post_attach_fkey FOREIGN KEY (post_attach)
+      REFERENCES attach (attach_id) MATCH SIMPLE
 );
-
-ALTER TABLE ONLY post
-    ADD CONSTRAINT pk_post_id PRIMARY KEY (post_id);
-
-ALTER TABLE ONLY post
-    ADD CONSTRAINT unique_external_id UNIQUE (post_external_id);
-
-ALTER TABLE ONLY post
-    ADD CONSTRAINT post_post_attach_fkey FOREIGN KEY (post_attach) REFERENCES attach(attach_id);

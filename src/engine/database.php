@@ -12,16 +12,16 @@ function db_getPosts() {
 	return sqlQuery('SELECT * FROM post LEFT JOIN attach ON post.post_attach = attach.attach_id INNER JOIN attach_type ON attach_type.attach_type_tag = attach.attach_type_tag')->fetchAll();
 }
 
-function db_savePost($post_external_id, $post_text, $post_attach) {
-	return sqlQuery('INSERT INTO post (post_external_id, post_text, post_attach) VALUES (?, ?, ?)', $post_external_id, $post_text, $post_attach);
+function db_savePost($post_chat_id, $post_message_id, $post_text, $post_attach) {
+	return sqlQuery('INSERT INTO post (post_chat_id, post_message_id, post_text, post_attach) VALUES (?, ?, ?, ?)', $post_chat_id, $post_message_id, $post_text, $post_attach);
 }
 
-function db_updatePost($post_external_id, $post_text) {
-	return sqlQuery('UPDATE post SET post_text = ? WHERE post_external_id = ?', $post_text, $post_external_id);
+function db_updatePost($post_chat_id, $post_message_id, $post_text) {
+	return sqlQuery('UPDATE post SET post_text = ? WHERE post_chat_id = ? AND post_message_id = ?', $post_text, $post_chat_id, $post_message_id);
 }
 
-function db_deletePost($post_external_id) {
-	return sqlQuery('DELETE FROM post WHERE post_external_id = ?', $post_external_id);
+function db_deletePost($post_chat_id, $post_message_id) {
+	return sqlQuery('DELETE FROM post WHERE post_chat_id = ? AND post_message_id = ?', $post_chat_id, $post_message_id);
 }
 
 function db_getAttach($attach_filename) {
