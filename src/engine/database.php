@@ -9,7 +9,7 @@
 require_once ('engine/pgsql.php');
 
 function db_getPosts() {
-	return sqlQuery('SELECT * FROM post LEFT JOIN attach ON post.post_attach = attach.attach_id INNER JOIN attach_type ON attach_type.attach_type_tag = attach.attach_type_tag')->fetchAll();
+	return sqlQuery('SELECT * FROM post LEFT JOIN attach ON post.post_attach = attach.attach_id order by post_timestamp asc')->fetchAll();
 }
 
 function db_savePost($post_chat_id, $post_message_id, $post_text, $post_attach) {
