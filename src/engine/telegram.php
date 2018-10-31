@@ -85,6 +85,11 @@ function telegram_sendMessage ($text, $chat, $additionalParams = null, $forceHTT
 
 function telegram_processCommand($commandline, $chat, $user, $messageId)
 {
+	if ($user !== TELEGRAM_UBER_ADMIN_UID) {
+		error_log('Command attempt from a non-admin user ['.$user.'], declined.');
+		return;
+	}
+
 	$commandline = mb_substr($commandline, 1, NULL, 'UTF-8');
 
 	if (strpos($commandline, '@') > -1)
@@ -99,8 +104,12 @@ function telegram_processCommand($commandline, $chat, $user, $messageId)
 
 	switch ($commands[0]) {
 		case 'thischannel':
-			config_setVal('channel_id', $chat);
-			curl_request('deleteMessage', 'get', Array('chat_id' => $chat, 'message_id' => $messageId));
+			if ($chat > 0)
+				telegram_sendMessage('Not a channel/group chat, rejected.', $chat);
+			else {
+				config_setVal('channel_id', $chat);
+				curl_request('deleteMessage', 'get', Array('chat_id' => $chat, 'message_id' => $messageId));
+			}
 			break;
 
 		default:
@@ -178,7 +187,7 @@ function telegram_processMessage($message, $isEdit, $isFromChannel) {
 
 	if ($text[0] === '/') {
 		telegram_processCommand($text, $chat, $user, $message['message_id']);
-	} elseif ($isFromChannel) { // won't save direct messages
+	} elseif ($isFromChannel && $chat === config_getVal('channel_id')) { // won't save direct messages
 		if ($isEdit) {
 			db_updatePost($externalId, $text);
 		} else {
