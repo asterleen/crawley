@@ -22,6 +22,7 @@ switch ($route[0]) {
 
 	case 'post': 
 		require_once ('engine/post.php');
+		post_processRequest();
 		break;
 
 	default:

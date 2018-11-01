@@ -5,6 +5,17 @@
 --    https://github.com/asterleen/crawley
 --
 
+-- It's better to use this "polyfill" from MySQL than include different
+-- implementations in the Crawley's code
+CREATE OR REPLACE FUNCTION unix_timestamp(ts timestamp without time zone)
+  RETURNS integer AS
+$BODY$
+begin
+    return extract(epoch from ts at time zone 'msk'); -- set your server's timezone here
+end
+$BODY$
+  LANGUAGE plpgsql IMMUTABLE
+COST 100;
 
 CREATE TABLE attach_type (
     attach_type_tag character varying(16) NOT NULL,

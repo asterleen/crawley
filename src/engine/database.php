@@ -1,4 +1,5 @@
 <?php
+
 /*
        Crawley the Telegram Beholder
     by Asterleen ~ https://asterleen.com
@@ -8,8 +9,13 @@
 
 require_once ('engine/pgsql.php');
 
-function db_getPosts() {
-	return sqlQuery('SELECT * FROM post LEFT JOIN attach ON post.post_attach = attach.attach_id order by post_timestamp asc')->fetchAll();
+function db_getPostCount() {
+	$res = sqlQuery('SELECT count(*) as cnt FROM post')->fetch();
+	return $res['cnt'];
+}
+
+function db_getPosts($limit, $offset) {
+	return sqlQuery('SELECT *, unix_timestamp(post_timestamp) as post_ts FROM post LEFT JOIN attach ON post.post_attach = attach.attach_id order by post_timestamp asc LIMIT ? OFFSET ?', $limit, $offset)->fetchAll();
 }
 
 function db_savePost($post_chat_id, $post_message_id, $post_text, $post_attach) {

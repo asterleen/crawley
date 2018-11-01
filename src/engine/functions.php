@@ -25,3 +25,10 @@ function displayStub()
 	die ("<h1>Crawley isn't intended to be called directly from your browser</h1>");
 }
 
+function json_respond ($status, $payload = Array()) {
+	if (CORS_ALLOW_EXTERNAL)
+		header ('Access-Control-Allow-Origin: *');
+
+	header('Content-Type: application/json');
+	die(json_encode(Array('status' => (int)$status, 'payload' => $payload)));
+}
