@@ -12,6 +12,8 @@ require_once ('engine/database.php');
 require_once ('engine/functions.php');
 require_once ('engine/tempconfig.php');
 
+checkFilesystem();
+
 $route = explode('/', $_GET['route']);
 
 switch ($route[0]) {

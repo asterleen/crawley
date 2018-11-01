@@ -44,3 +44,6 @@ function db_saveAttach($attach_filename, $attach_type_tag) {
 	return getLastInsertId('seq_attach_id');
 }
 
+function db_getAttachTypes() {
+	return sqlQuery('SELECT * FROM attach_type')->fetchAll();
+}
