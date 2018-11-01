@@ -7,8 +7,7 @@
     https://github.com/asterleen/crawley
 */
 
-function curl_request ($method, $type, $data = Array())
-{
+function curl_request ($method, $type, $data = Array()) {
 	$curl = curl_init();
 
 	if($curl)
@@ -32,8 +31,7 @@ function curl_request ($method, $type, $data = Array())
 		return false;
 }
 
-function telegram_getFile ($file_id, $attachType)
-{
+function telegram_getFile ($file_id, $attachType) {
 
 	$filedata_raw = curl_request('getFile', 'get', Array('file_id' => $file_id));
 	$filedata = json_decode($filedata_raw, true);
@@ -195,7 +193,17 @@ function telegram_processMessage($message, $isEdit, $isFromChannel) {
 			} else
 				db_updatePost($chat, $post, $text);
 		} else {
-			$attachId = ($containsAttach) ? telegram_processAttach($message) : null;
+
+			$attachId = null;
+			if ($containsAttach) {
+				$attachId = telegram_processAttach($message);
+
+				if ($attachId === null) {
+					// Remember: this function die()'s implicitly
+					telegram_sendMessage('[Crawley] Could not get the attachment! Fix it as soon as possible and re-send your post then remove this message.', $chat);
+				}
+			}
+
 			db_savePost($chat, $post, $text, $attachId);
 		}
 
