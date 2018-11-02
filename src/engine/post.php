@@ -13,6 +13,9 @@ function post_processRequest() {
 	$amount = (int)$_GET['amount'];
 	$offset = (int)$_GET['offset'];
 
+	if ($amount < 0 || $offset < 0)
+		json_respond(3, 'Negative offset and amount are not supported');
+
 	if ($amount > CONTENT_MAX_AMOUNT)
 		json_respond (1, 'Too large records amount requested');
 
