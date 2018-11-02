@@ -110,6 +110,26 @@ function telegram_processCommand($commandline, $chat, $user, $messageId)
 			}
 			break;
 
+		case 'purge':
+			if (empty($commands[1]) || empty(config_getVal('purge_tmp_key'))) {
+				$purgeNonce = mknonce(8);
+
+				config_setVal ('purge_tmp_key', $purgeNonce);
+
+				telegram_sendMessage("Are you sure to remove all the posts from Crawley's database?\n" .
+							"**WARNING: you will not be able to restore these records!**\n" .
+							"Only posts will be purged, attaches won't be due to caching reasons.\n" .
+							"To proceed send me this: `/purge ".$purgeNonce.'`', $chat);
+			} else {
+				if ($commands[1] === config_getVal('purge_tmp_key')) {
+					db_purgePosts();
+					config_setVal('purge_tmp_key', 0);
+					telegram_sendMessage('Posts table is completely clean.', $chat);
+				}
+			}
+			
+			break;
+
 		default:
 			telegram_sendMessage('Bad command.', $chat);
 	}

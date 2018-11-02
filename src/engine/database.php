@@ -30,6 +30,10 @@ function db_deletePost($post_chat_id, $post_message_id) {
 	return sqlQuery('DELETE FROM post WHERE post_chat_id = ? AND post_message_id = ?', $post_chat_id, $post_message_id);
 }
 
+function db_purgePosts() {
+	return sqlQuery('DELETE FROM post');
+}
+
 function db_getAttach($attach_filename) {
 	$res = sqlQuery('SELECT * FROM attach WHERE attach_filename = ?', $attach_filename)->fetch();
 	return (empty($res)) ? false : $res;
