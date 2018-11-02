@@ -15,7 +15,7 @@ function db_getPostCount() {
 }
 
 function db_getPosts($limit, $offset) {
-	return sqlQuery('SELECT *, unix_timestamp(post_timestamp) as post_ts FROM post LEFT JOIN attach ON post.post_attach = attach.attach_id order by post_timestamp asc LIMIT ? OFFSET ?', $limit, $offset)->fetchAll();
+	return sqlQuery('SELECT *, unix_timestamp(post_timestamp) as post_ts FROM post LEFT JOIN attach ON post.post_attach = attach.attach_id order by post_timestamp DESC LIMIT ? OFFSET ?', $limit, $offset)->fetchAll();
 }
 
 function db_savePost($post_chat_id, $post_message_id, $post_text, $post_attach) {
