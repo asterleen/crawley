@@ -83,7 +83,7 @@ function telegram_sendMessage ($text, $chat, $additionalParams = null, $forceHTT
 
 function telegram_processCommand($commandline, $chat, $user, $messageId)
 {
-	if ($user !== TELEGRAM_UBER_ADMIN_UID) {
+	if ($chat > 0 && $user !== TELEGRAM_UBER_ADMIN_UID) {
 		error_log('Command attempt from a non-admin user ['.$user.'], declined.');
 		return;
 	}
@@ -100,14 +100,35 @@ function telegram_processCommand($commandline, $chat, $user, $messageId)
 
 	$commands = explode(' ', $commandline);
 
+
+	// THh following commands are allowed in channels
 	switch ($commands[0]) {
-		case 'thischannel':
-			if ($chat > 0)
-				telegram_sendMessage('Not a channel/group chat, rejected.', $chat);
-			else {
-				config_setVal('channel_id', $chat);
-				curl_request('deleteMessage', 'get', Array('chat_id' => $chat, 'message_id' => $messageId));
+		case 'setchat':
+			if ($commands[1] === config_getVal('setchannel_tmp_key')) {
+				if ($chat > 0)
+					telegram_sendMessage('Not a channel/group chat, rejected.', $chat);
+				else {
+					config_setVal('channel_id', $chat);
+					curl_request('deleteMessage', 'get', Array('chat_id' => $chat, 'message_id' => $messageId));
+					config_setVal('setchannel_tmp_key', 0);
+				}
+			} else {
+				telegram_sendMessage('Bad temporary key. Send me a `/getkey` command in private chat.', $chat);
 			}
+			break;
+	}
+
+	// The next commands are to be executed only in private messages and only by admin.
+	if ($chat <= 0)
+		return;
+
+	switch ($commands[0]) {
+		case 'getkey': 
+			$setchatNonce = mknonce(8);
+			config_setVal ('setchannel_tmp_key', $setchatNonce);
+
+			telegram_sendMessage("You chat setting temporary key is `".$setchatNonce."`.\n" .
+							"Send the command `/setchat ".$setchatNonce."` to the channel you want to connect with Crawley and I will follow it and save its content.", $chat);
 			break;
 
 		case 'purge':
