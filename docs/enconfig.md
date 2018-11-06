@@ -1,3 +1,5 @@
+# Crawley Configuration file
+
 The `enconfig.php` file describes the core configuration of Crawley. It contains the database connection credentials, paths and other neccessary information. The table below describes every key as detailed as possible.
 
 |  Configuration key | Description  |
