@@ -58,7 +58,7 @@ function telegram_getFile ($file_id, $attachType) {
 	return $filename;
 }
 
-function telegram_sendMessage ($text, $chat, $additionalParams = null, $forceHTTP = false)
+function telegram_sendMessage ($text, $chat, $additionalParams = null, $dontExit = false)
 {
 	$message = Array (
 		'text' => $text,	
@@ -68,26 +68,26 @@ function telegram_sendMessage ($text, $chat, $additionalParams = null, $forceHTT
 	if (!empty($additionalParams))
 			$message = array_merge($message, $additionalParams);
 
-	if (TELEGRAM_USE_DIRECT_RESPONSE && !$forceHTTP) // see enconfig.php
+	if (TELEGRAM_USE_DIRECT_RESPONSE && !$dontExit) // see enconfig.php
 	{
 		$message = array_merge($message, Array('method' => 'sendMessage'));
 
 		header('Content-Type: application/json');
 		die(json_encode($message));
 	}
-	else
+	else {
 		$answer = curl_request('sendMessage', 'post', $message);
+
+		if (!$dontExit) {
+			die('OK');
+		}
+	}
 }
 
 
 
 function telegram_processCommand($commandline, $chat, $user, $messageId)
 {
-	if ($chat > 0 && $user !== TELEGRAM_UBER_ADMIN_UID) {
-		error_log('Command attempt from a non-admin user ['.$user.'], declined.');
-		return;
-	}
-
 	$commandline = mb_substr($commandline, 1, NULL, 'UTF-8');
 
 	if (strpos($commandline, '@') > -1)
@@ -100,6 +100,15 @@ function telegram_processCommand($commandline, $chat, $user, $messageId)
 
 	$commands = explode(' ', $commandline);
 
+	if ($chat > 0 && $commands[0] == 'whoami') {
+		telegram_sendMessage(sprintf('You id is `%d`.', $user), $chat);
+		return;
+	}
+
+	if ($chat > 0 && $user !== TELEGRAM_UBER_ADMIN_UID) {
+		error_log('Command attempt from a non-admin user ['.$user.'], declined.');
+		return;
+	}
 
 	// THh following commands are allowed in channels
 	switch ($commands[0]) {
