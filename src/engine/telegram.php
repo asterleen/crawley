@@ -101,7 +101,7 @@ function telegram_processCommand($commandline, $chat, $user, $messageId)
 	$commands = explode(' ', $commandline);
 
 	if ($chat > 0 && $commands[0] == 'whoami') {
-		telegram_sendMessage(sprintf('You id is `%d`.', $user), $chat);
+		telegram_sendMessage(sprintf('Your id is `%d`.', $user), $chat);
 		return;
 	}
 
@@ -136,7 +136,7 @@ function telegram_processCommand($commandline, $chat, $user, $messageId)
 			$setchatNonce = mknonce(8);
 			config_setVal ('setchannel_tmp_key', $setchatNonce);
 
-			telegram_sendMessage("You chat setting temporary key is `".$setchatNonce."`.\n" .
+			telegram_sendMessage("Your chat setting temporary key is `".$setchatNonce."`.\n" .
 							"Send the command `/setchat ".$setchatNonce."` to the channel you want to connect with Crawley and I will follow it and save its content.", $chat);
 			break;
 
