@@ -2,6 +2,8 @@
 Hi, this is Crawley!
 Crawley allows you to use your Telegram channel as a news feed for your website. Crawley is a standalone, independent from other libraries Telegram bot written in PHP. It can be used on both dedicated and shared hostings. Crawley has an API to get saved posts in JSON format and use it on your website. 
 
+**Quick links**: [Configuration](docs/configuration.md) |  [User's manual & API](docs/usage.md) | [Config file](docs/enconfig.md)
+
 ## Prerequisites
 `Apache` web server is the preferable because of its support of `.htaccess`. Don't forget to set up the `AllowOverride all` configuration option. Alternatively you can set up the `nginx` server with corresponding rewrite options, see `.htaccess` file in `/src/` directory. It is also neccessary to restrict web server's clients from accessing the `engine` directory.
 
