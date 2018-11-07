@@ -35,5 +35,6 @@ Telegram should respond with the `OK` status and `Webhook was set` comment.
 **Third**, send a `/getkey` command to Crawley in private messages. It will respond you with a key to be used to connect your channel. Go to your channel and send `/setchat` command with the key provided by Crawley. Don't worry, after setting up Crawley will remove this message.  
 **That's it!** You are able now to post records to the Telegram channel and they will be copied to Crawley's database.  
 
-### Moar configuration
-Detailed configuration steps are described in [configuration.md](docs/configuration.md) document.
+
+### Still can't get it!
+Read the detailed [configuration & installation document](docs/configuration.md).
