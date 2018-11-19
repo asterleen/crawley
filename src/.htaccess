@@ -1,3 +1,5 @@
+php_value short_open_tag 0
+
 <IfModule mod_rewrite.c>
 RewriteEngine on
 RewriteCond %{REQUEST_FILENAME} !-f

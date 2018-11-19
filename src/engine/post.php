@@ -54,3 +54,37 @@ function post_processRequest() {
 		'posts' => $records
 	));
 }
+
+function post_processRss() {
+	$recordsRaw = db_getPosts(CONTENT_DEFAULT_AMOUNT, 0);
+	$records = Array();
+
+	foreach ($recordsRaw as $post) {
+		$newRecord = Array(
+			'title' => htmlspecialchars(truncateText($post['post_text'], RSS_MAX_TITLE_LENGTH)),
+			'link' => sprintf(RSS_POST_LINK_TEMPLATE, $post['post_chat_id'] . '_' . $post['post_message_id']),
+			'description' => htmlspecialchars($post['post_text'])
+		);
+
+		if (!empty($post['attach_id'])) {
+			$localFilename = TELEGRAM_CONTENT_SAVE_PATH . '/' . $post['attach_type_tag'] . '/' . $post['attach_filename'];
+
+			$newRecord['attachment'] = Array (
+				'type' => mime_content_type($localFilename),
+				'length' => filesize($localFilename),
+				'url' => CONTENT_URL_PREFIX . '/' . $post['attach_type_tag'] . '/' . $post['attach_filename']
+			);
+		}
+
+		$records[] = $newRecord;
+	}
+
+	$content = Array();
+	$content['title'] = RSS_TITLE;
+	$content['link'] = RSS_URL;
+	$content['description'] = RSS_DESCRIPTION;
+	$content['posts'] = $records;
+
+	header ('Content-Type: application/rss+xml');
+	require_once 'engine/template/rss.xml';
+}

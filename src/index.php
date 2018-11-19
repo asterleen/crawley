@@ -27,6 +27,11 @@ switch ($route[0]) {
 		post_processRequest();
 		break;
 
+	case 'rss.xml':
+		require_once ('engine/post.php');
+		post_processRss();
+		break;
+
 	default:
 		displayStub();
 }

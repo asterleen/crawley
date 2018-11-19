@@ -45,3 +45,11 @@ function checkFilesystem() {
 		}
 	}
 }
+
+function truncateText ($text, $maxlen = 32) {
+	$possibleDotPosition = mb_strpos($text, '.', 0, 'UTF-8');
+	if ($possibleDotPosition > 0 && $possibleDotPosition <= $maxlen)
+		return mb_substr($text, 0, $possibleDotPosition, 'UTF-8');
+	else
+		return mb_substr($text, 0, $maxlen - 3, 'UTF-8') . '...';
+}

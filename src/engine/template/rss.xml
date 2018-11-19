@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title><?php echo($content['title']); ?></title>
+    <link><?php echo($content['link']); ?></link>
+    <description><?php echo($content['description']); ?></description>
+
+    <!-- You're free to remove this, but we ask you to leave it if you liked Crawley -->
+    <generator>Crawley the Telegram Beholder</generator>
+
+    <?php foreach ($content['posts'] as $post): ?>
+
+    <item>
+        <title><?php echo($post['title']); ?></title>
+        <link><?php echo($post['link']); ?></link>
+        <description><?php echo($post['description']); ?></description>
+        <?php if (!empty($post['attachment'])): ?>
+        
+        <enclosure url="<?php echo($post['attachment']['url']); ?>" length="<?php echo($post['attachment']['length']); ?>" type="<?php echo($post['attachment']['type']); ?>" />
+        <?php endif; ?>
+
+    </item>
+    <?php endforeach; ?>
+
+  </channel>
+</rss> 
