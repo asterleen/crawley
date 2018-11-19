@@ -4,6 +4,9 @@ Crawley beholds your Telegram channel and makes all the changes that you perform
 ### Post Removal
 Telegram servers do not send update events when you delete messages from the channel. As the result Crawley does not remove posts from its database. To keep your channel and Crawley's database synced **do not remove messages directly**. Instead, edit the message you want to remove and replace its content to `-` (minus sign). Crawley will remove both posts in its database and the connected channel. To remove a picture, a music file or a voice message edit their captions.
 
+## RSS
+Crawley generates and sends simple syndication feeds known as RSS. To get it, just perform a GET request to `/rss.xml` of your Crawley installation. It supports attachments as well.
+
 ## API
 Crawley provides a simple API to get the posts from its database. Just make a GET request at `/post` endpoint and Crawley will respond you with a JSON object of the posts. Posts are sorted by timestamp in an descending order. You also can add `amount` and `offset` parameters for pagination purposes: `amount` limits the maximal amount of returned posts, `offset` skips posts.  
 The most complicated request will look like this:

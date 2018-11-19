@@ -4,7 +4,11 @@ Crawley allows you to use your Telegram channel as a news feed for your website.
 
 **Quick links**: [Configuration](docs/configuration.md) |  [User's manual & API](docs/usage.md) | [Config file](docs/enconfig.md)
 
-## Prerequisites
+## What is Crawley made for?
+Crawley stores your Telegram channel feed into its internal database and keeps it updated via Telegram Bot API and its webhooks. It can be used as a news source for your website as well as an RSS feed. Crawley is a gate between your website and your Telegram channel that allows users which do not have a Telegram account stay in touch with you. Crawley is only and API and therefore it's highly customizable, just get Crawley's JSON and build your news page as you want!
+
+## Installation
+### Prerequisites
 `Apache` web server is the preferable because of its support of `.htaccess`. Don't forget to set up the `AllowOverride all` configuration option. Alternatively you can set up the `nginx` server with corresponding rewrite options, see `.htaccess` file in `/src/` directory. It is also neccessary to restrict web server's clients from accessing the `engine` directory.
 
 Crawley is tested with PHP7, but it does not use any of PHP7-specific functions. The following PHP modules are required: `curl`, `pgsql`, `mbstring`. 
@@ -13,9 +17,7 @@ In Ubuntu/Debian run this command as root:
 
 We use PostgreSQL as the database so you also will need to set it up. MySQL/MariaDB will be added later or on your demand.  
 
-That's all! We don't want anything special from you.
-
-## Installation
+### Installation steps
 0. Make sure that your setup meets the prerequisites
 1. Download Crawley and upload the contents of `src` directory onto your web server
 2. Execute the SQL from `dist/crawley.pg.sql` on your database (privileges and schemas are on your own)
