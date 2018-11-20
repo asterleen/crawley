@@ -7,6 +7,9 @@
     https://github.com/asterleen/crawley
 */
 
+if (!file_exists('engine/enconfig.php'))
+	die ('<h1>No enconfig.php file found. Configure Crawley first!</h1>');
+
 require_once ('engine/enconfig.php');
 require_once ('engine/database.php');
 require_once ('engine/functions.php');
