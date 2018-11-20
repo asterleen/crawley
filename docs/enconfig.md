@@ -17,3 +17,9 @@ The `enconfig.php` file describes the core configuration of Crawley. It contains
 | `TELEGRAM_USE_DIRECT_RESPONSE` | When set to `true` (by default), Crawley will respond with JSON to Telegram server and die, otherwise, a HTTP request to Telegram servers will be performed. Preferrable to leave `true`. |
 | `TELEGRAM_CONTENT_SAVE_PATH` | Determines where to store the attachments from the posts. Must be writable, highly recommended to isolate it from PHP. |
 | `TELEGRAM_UBER_ADMIN_UID` | Your Telegram user ID. It's used by Crawley restrict stray users from control commands |
+| `RSS_TITLE` | Title that will be used in the RSS feed |
+| `RSS_URL` | A link to your website (not Crawley API) that will be shown in your RSS feed |
+| `RSS_DESCRIPTION` | A brief description of your project for RSS feed |
+| `RSS_AUTHOR` | Author's e-mail to be shown in RSS feed |
+| `RSS_POST_LINK_TEMPLATE` | If you've implemented functionality to show the single post, edit this template. `%s` will be replaced with ID that looks the same as in JSON object, like `-31337_228` |
+| `RSS_MAX_TITLE_LENGTH` | Title in RSS will be truncated to this length or till the first dot found |
