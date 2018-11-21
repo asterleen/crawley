@@ -31,6 +31,26 @@ function curl_request ($method, $type, $data = Array()) {
 		return false;
 }
 
+function telegram_getChatInfo ($chat_id) {
+	$chatinfo_raw = curl_request('getChat', 'get', Array('chat_id' => $chat_id));
+
+	if (!$chatinfo_raw)
+		return false;
+
+	$chatinfo = json_decode($chatinfo_raw, true);
+	if (!$chatinfo) {
+		return false;
+	}
+
+	return Array(
+		'id' => $chatinfo['id'],
+		'title' => $chatinfo['title'],
+		'username' => $chatinfo['username'],
+		'type' => $chatinfo['type']
+	);
+
+}
+
 function telegram_getFile ($file_id, $attachType) {
 
 	$filedata_raw = curl_request('getFile', 'get', Array('file_id' => $file_id));
@@ -124,6 +144,10 @@ function telegram_processCommand($commandline, $chat, $user, $messageId)
 			} else {
 				telegram_sendMessage('Bad temporary key. Send me a `/getkey` command in private chat.', $chat);
 			}
+			break;
+
+		case 'thischat':
+
 			break;
 	}
 

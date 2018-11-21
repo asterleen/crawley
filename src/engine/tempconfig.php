@@ -41,4 +41,29 @@ function config_setVal($key, $value) {
 	config_save();
 }
 
+function config_getChats() {
+	return config_getVal('chats', Array());
+}
+
+function config_saveChats($chats) {
+	config_setVal('chats', $chats);
+}
+
+function config_getChatById($chatId) {
+	$chats = config_getChats();
+	return $chats[$chatId];
+}
+
+function config_removeChatById($chatId) {
+	$chats = config_getChats();
+	unset $chats[$chatId];
+	config_saveChats($chats);
+}
+
+function config_addChat($chatId, $chat) {
+	$chats = config_getChats();
+	$chats[$chatId] = $chat;
+	config_saveChats($chats);
+}
+
 config_load();
