@@ -31,6 +31,37 @@ function curl_request ($method, $type, $data = Array()) {
 		return false;
 }
 
+function curl_downloadFile ($filepath, $destination) {
+	$curl = curl_init();
+	$destres = 0;
+
+	if (is_resource($destination)) {
+		$destres = $destination;
+	} else {
+		$destres = fopen($dest, 'w');
+	}
+
+	if($curl)
+	{
+		curl_setopt($curl, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+		curl_setopt($curl, CURLOPT_URL, 'https://api.telegram.org/file/bot'.TELEGRAM_BOT_TOKEN.'/'.$filepath);
+		curl_setopt($curl, CURLOPT_FILE, $destres);
+		curl_setopt($curl, CURLOPT_TIMEOUT, 30);
+		curl_setopt($curl, CURLOPT_FAILONERROR, true);
+		curl_setopt($curl, CURLOPT_USERAGENT, 'CrawleyBot; +https://github.com/asterleen/crawley');
+
+		$out = curl_exec($curl);
+		curl_close($curl);
+
+		if (!is_resource($destination)) {
+			fclose($destres);
+		}
+
+		return (empty ($out)) ? false : true;
+	} else
+		return false;
+}
+
 function telegram_getChatInfo ($chat_id) {
 	$chatinfo_raw = curl_request('getChat', 'get', Array('chat_id' => $chat_id));
 
@@ -66,12 +97,9 @@ function telegram_getFile ($file_id, $attachType) {
 	$filelocation = TELEGRAM_CONTENT_SAVE_PATH.'/'.$attachType.'/'.$filename;
 
 	if (!file_exists($filelocation)) {
-		$fcontent = file_get_contents('https://api.telegram.org/file/bot'.TELEGRAM_BOT_TOKEN.'/'.$filepath);
+		$fsuccess = curl_downloadFile($filepath, $filelocation);
 
-		if (!$fcontent)
-			return false;
-
-		if (file_put_contents($filelocation, $fcontent) === false)
+		if (!$fsuccess)
 			return false;
 	}
 
