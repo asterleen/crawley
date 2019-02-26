@@ -74,10 +74,10 @@ function telegram_getChatInfo ($chat_id) {
 	}
 
 	return Array(
-		'id' => $chatinfo['id'],
-		'title' => $chatinfo['title'],
-		'username' => $chatinfo['username'],
-		'type' => $chatinfo['type']
+		'id' => $chatinfo['result']['id'],
+		'title' => $chatinfo['result']['title'],
+		'username' => $chatinfo['result']['username'],
+		'type' => $chatinfo['result']['type']
 	);
 
 }
@@ -159,9 +159,15 @@ function telegram_processCommand($commandline, $chat, $user, $messageId)
 		return;
 	}
 
-	if ($chat > 0 && $commands[0] == 'start') {
+	if ($chat > 0) {
+		config_setVal('admin_chat_id', $chat); // useful to report Crawley's faults
+	}
 
-		$startMessage = <<<CRAWLEY
+	// THh following commands are allowed in channels
+	switch ($commands[0]) {
+
+		case 'start':
+			$startMessage = <<<CRAWLEY
 Hi! This is Crawley, the Telegram Beholder.
 
 To use me, follow these steps:
@@ -173,13 +179,10 @@ To use me, follow these steps:
 Read more at https://github.com/asterleen/crawley
 CRAWLEY;
 
-		telegram_sendMessage($startMessage, $chat);
+			telegram_sendMessage($startMessage, $chat);
+			break;
 
-		return;
-	}
 
-	// THh following commands are allowed in channels
-	switch ($commands[0]) {
 		case 'setchat':
 			if ($commands[1] === config_getVal('setchannel_tmp_key')) {
 				if ($chat > 0)
@@ -195,17 +198,37 @@ CRAWLEY;
 			break;
 
 		case 'addchat':
-			$chatInfo = telegram_getChatInfo($chat);
-			if (!$chatInfo) {
-				error_log('Error while getting chat info!');
-				telegram_sendMessage('Could not get chat info!', $chat);
-			} else {
+			if ($commands[1] === config_getVal('setchannel_tmp_key')) {
+				$chatInfo = telegram_getChatInfo($chat);
 
+				if (empty($chatInfo)) {
+					error_log('Error while getting chat info!');
+					telegram_sendMessage('Could not get chat info!', config_getVal('admin_chat_id'));
+				} else {
+					if ($chatInfo['type'] === 'channel') {
+						$storedChatInfo = config_getChatById($chat);
+						if (empty($storedChatInfo)) {
+							config_addChat($chat, $chatInfo);
+							config_setVal('setchannel_tmp_key', 0);
+
+							curl_request('deleteMessage', 'get', Array('chat_id' => $chat, 'message_id' => $messageId));
+							telegram_sendMessage(sprintf('Successfully added channel `%s` to following channels list!', $chatInfo['title']),  config_getVal('admin_chat_id'));
+						} else {
+							config_setVal('setchannel_tmp_key', 0);
+							telegram_sendMessage('This channel is already followed by Crawley. Remove this message ASAP.', $chat);
+						}
+					} else {
+						config_setVal('setchannel_tmp_key', 0);
+						telegram_sendMessage('Crawley supports channels only for now.', $chat);
+					}
+				}
+			} else {
+				telegram_sendMessage('Bad temporary key. Send me a `/getkey` command in private messages.', $chat);
 			}
 			break;
 	}
 
-	// The next commands are to be executed only in private messages and only by admin.
+	// Commands below are meant to be executed only in private messages and only by admin.
 	if ($chat <= 0)
 		return;
 
@@ -313,26 +336,41 @@ function telegram_processMessage($message, $isEdit, $isFromChannel) {
 
 	if ($text[0] === '/') {
 		telegram_processCommand($text, $chat, $user, $post);
-	} elseif ($isFromChannel && $chat === config_getVal('channel_id')) { // won't save direct messages
-		if ($isEdit) {
-			if ($text === '-') { // artifical removal, Telegram does not send delete event
-				db_deletePost($chat, $post);
-				curl_request('deleteMessage', 'get', Array('chat_id' => $chat, 'message_id' => $post));
-			} else
-				db_updatePost($chat, $post, $text);
-		} else {
+	} elseif ($isFromChannel) {
 
-			$attachId = null;
-			if ($containsAttach) {
-				$attachId = telegram_processAttach($message);
+		$chatInfo = config_getChatById($chat);
 
-				if ($attachId === null) {
-					// Remember: this function die()'s implicitly
-					telegram_sendMessage('[Crawley] Could not get the attachment! Fix it as soon as possible and re-send your post then remove this message.', $chat);
+		if (!empty($chatInfo)) {
+			if ($isEdit) {
+				if ($text === '-') { // artifical removal, Telegram does not send delete event
+					db_deletePost($chat, $post);
+					curl_request('deleteMessage', 'get', Array('chat_id' => $chat, 'message_id' => $post));
+				} else
+					db_updatePost($chat, $post, $text);
+			} else {
+
+				// It's better to send errors to admin rather than to the channel
+				$adminChatId = config_getVal('admin_chat_id');
+				$chatToSend = 0;
+				if ($adminChatId !== 0) {
+					$chatToSend = $adminChatId;
+				} else { // but if we don't know admin's dialogue chat, okay, we'll send errors to the channel
+					$chatToSend = $chat;
 				}
-			}
 
-			db_savePost($chat, $post, $text, $attachId);
+
+				$attachId = null;
+				if ($containsAttach) {
+					$attachId = telegram_processAttach($message);
+
+					if ($attachId === null) {
+						// Remember: this function die()'s implicitly
+						telegram_sendMessage(sprintf('[Crawley] Could not get the attachment in chat %s (ID %s)! Fix it as soon as possible and re-send your post then remove this message.', $chatInfo['title'], $chat), $chatToSend);
+					}
+				}
+
+				db_savePost($chat, $post, $text, $attachId);
+			}
 		}
 
 		die ('OK');
