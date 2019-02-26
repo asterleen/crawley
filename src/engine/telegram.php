@@ -78,6 +78,7 @@ function telegram_getFile ($file_id, $attachType) {
 	return $filename;
 }
 
+// NB: if $dontExit is set to false, Crawley will exit the script after sending the message
 function telegram_sendMessage ($text, $chat, $additionalParams = null, $dontExit = false)
 {
 	$message = Array (
@@ -146,8 +147,14 @@ function telegram_processCommand($commandline, $chat, $user, $messageId)
 			}
 			break;
 
-		case 'thischat':
+		case 'addchat':
+			$chatInfo = telegram_getChatInfo($chat);
+			if (!$chatInfo) {
+				error_log('Error while getting chat info!');
+				telegram_sendMessage('Could not get chat info!', $chat);
+			} else {
 
+			}
 			break;
 	}
 

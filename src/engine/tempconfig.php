@@ -56,7 +56,7 @@ function config_getChatById($chatId) {
 
 function config_removeChatById($chatId) {
 	$chats = config_getChats();
-	unset $chats[$chatId];
+	unset ($chats[$chatId]);
 	config_saveChats($chats);
 }
 
