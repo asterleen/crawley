@@ -131,6 +131,23 @@ function telegram_processCommand($commandline, $chat, $user, $messageId)
 		return;
 	}
 
+	if ($chat > 0 && $commands[0] == 'start') {
+
+		$startMessage = <<<CRAWLEY
+Hi! This is Crawley, the Telegram Beholder.\n\n
+To use me, follow these steps:\n
+1. Send me a /getkey command and copy the key I'll give back.\n
+2. Add me to your channel and give me admin rights\n
+3. In that channel, write the `/addchat <your_key>` command\n
+4. I'll remember the chat and remove your message. You're done!\n\n
+Read more at https://github.com/asterleen/crawley
+CRAWLEY;
+
+		telegram_sendMessage($startMessage, $chat);
+
+		return;
+	}
+
 	// THh following commands are allowed in channels
 	switch ($commands[0]) {
 		case 'setchat':
