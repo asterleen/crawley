@@ -12,6 +12,7 @@ function post_processRequest() {
 
 	$amount = (int)$_GET['amount'];
 	$offset = (int)$_GET['offset'];
+	$channel = (int)$_GET['channel'];
 
 	if ($amount < 0 || $offset < 0)
 		json_respond(3, 'Negative offset and amount are not supported');
@@ -22,12 +23,12 @@ function post_processRequest() {
 	if ($amount === 0)
 		$amount = CONTENT_DEFAULT_AMOUNT;
 
-	$recordsCount = db_getPostCount();
+	$recordsCount = db_getPostCount($channel);
 
 	if ($offset >= $recordsCount)
-		json_respond (2, 'No more records');
+		json_respond (2, 'No records');
 
-	$recordsRaw = db_getPosts($amount, $offset);
+	$recordsRaw = db_getPosts($amount, $offset, $channel);
 	$records = Array();
 
 	foreach ($recordsRaw as $post) {
@@ -56,7 +57,10 @@ function post_processRequest() {
 }
 
 function post_processRss() {
-	$recordsRaw = db_getPosts(CONTENT_DEFAULT_AMOUNT, 0);
+
+	$channel = (int)$_GET['channel'];
+
+	$recordsRaw = db_getPosts(CONTENT_DEFAULT_AMOUNT, 0, $channel);
 	$records = Array();
 
 	foreach ($recordsRaw as $post) {
