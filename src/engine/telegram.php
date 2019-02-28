@@ -222,32 +222,22 @@ CRAWLEY;
 
 		case 'rmchat':
 			if ($commands[1] === config_getVal('chanman_tmp_key')) {
-				$chatInfo = telegram_getChatInfo($chat);
+					$chatInfo = config_getChatById($chat);
 
-				if (empty($chatInfo)) {
-					error_log('Error while getting chat info!');
-					telegram_sendMessage('Could not get chat info!', $adminChatId);
-				} else {
-					if ($chatInfo['type'] === 'channel') {
-						$storedChatInfo = config_getChatById($chat);
-						if (empty($storedChatInfo)) {
-							config_addChat($chat, $chatInfo);
-							config_setVal('chanman_tmp_key', 0);
-
-							curl_request('deleteMessage', 'get', Array('chat_id' => $chat, 'message_id' => $messageId));
-							telegram_sendMessage(sprintf('Successfully added channel `%s` to following channels list!', $chatInfo['title']), $adminChatId);
-						} else {
-							config_setVal('chanman_tmp_key', 0);
-							telegram_sendMessage('This channel is already followed by Crawley. Remove this message ASAP.', $chat);
-						}
-					} else {
+					if (empty($chatInfo)) {
+						error_log('Error while getting chat info!');
+						telegram_sendMessage('This chat is not followed by Crawley.', $adminChatId);
 						config_setVal('chanman_tmp_key', 0);
-						telegram_sendMessage('Crawley supports channels only for now.', $chat);
+					} else {
+						config_removeChatById($chat, $chatInfo);
+						config_setVal('chanman_tmp_key', 0);
+
+						curl_request('deleteMessage', 'get', Array('chat_id' => $chat, 'message_id' => $messageId));
+						telegram_sendMessage(sprintf('Successfully removed channel `%s` from following channels list!', $chatInfo['title']), $adminChatId);
 					}
+				} else {
+					telegram_sendMessage('Bad temporary key. Send me a `/getkey` command in private messages.', $chat);
 				}
-			} else {
-				telegram_sendMessage('Bad temporary key. Send me a `/getkey` command in private messages.', $chat);
-			}
 			break;
 	}
 
