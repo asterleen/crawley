@@ -159,8 +159,11 @@ function telegram_processCommand($commandline, $chat, $user, $messageId)
 		return;
 	}
 
-	if ($chat > 0) {
+	$adminChatId = config_getVal('admin_chat_id');
+
+	if ($adminChatId === 0 && $chat > 0) {
 		config_setVal('admin_chat_id', $chat); // useful to report Crawley's faults
+		$adminChatId = $chat;
 	}
 
 	// THh following commands are allowed in channels
@@ -184,41 +187,61 @@ CRAWLEY;
 
 
 		case 'setchat':
-			if ($commands[1] === config_getVal('setchannel_tmp_key')) {
-				if ($chat > 0)
-					telegram_sendMessage('Not a channel/group chat, rejected.', $chat);
-				else {
-					config_setVal('channel_id', $chat);
-					curl_request('deleteMessage', 'get', Array('chat_id' => $chat, 'message_id' => $messageId));
-					config_setVal('setchannel_tmp_key', 0);
-				}
-			} else {
-				telegram_sendMessage('Bad temporary key. Send me a `/getkey` command in private chat.', $chat);
-			}
+			telegram_sendMessage('The command `/setchat` is deprecated. Please use `/addchat` instead.', $chat);
 			break;
 
 		case 'addchat':
-			if ($commands[1] === config_getVal('setchannel_tmp_key')) {
+			if ($commands[1] === config_getVal('chanman_tmp_key')) {
 				$chatInfo = telegram_getChatInfo($chat);
 
 				if (empty($chatInfo)) {
 					error_log('Error while getting chat info!');
-					telegram_sendMessage('Could not get chat info!', config_getVal('admin_chat_id'));
+					telegram_sendMessage('Could not get chat info!', $adminChatId);
 				} else {
 					if ($chatInfo['type'] === 'channel') {
 						$storedChatInfo = config_getChatById($chat);
 						if (empty($storedChatInfo)) {
 							config_addChat($chat, $chatInfo);
-							config_setVal('setchannel_tmp_key', 0);
+							config_setVal('chanman_tmp_key', 0);
 
 							curl_request('deleteMessage', 'get', Array('chat_id' => $chat, 'message_id' => $messageId));
-							telegram_sendMessage(sprintf('Successfully added channel `%s` to following channels list!', $chatInfo['title']),  config_getVal('admin_chat_id'));
+							telegram_sendMessage(sprintf('Successfully added channel `%s` to following channels list!', $chatInfo['title']), $adminChatId);
 						} else {
-							config_setVal('setchannel_tmp_key', 0);
+							config_setVal('chanman_tmp_key', 0);
 							telegram_sendMessage('This channel is already followed by Crawley. Remove this message ASAP.', $chat);
 						}
 					} else {
-						config_setVal('setchannel_tmp_key', 0);
+						config_setVal('chanman_tmp_key', 0);
+						telegram_sendMessage('Crawley supports channels only for now.', $chat);
+					}
+				}
+			} else {
+				telegram_sendMessage('Bad temporary key. Send me a `/getkey` command in private messages.', $chat);
+			}
+			break;
+
+		case 'rmchat':
+			if ($commands[1] === config_getVal('chanman_tmp_key')) {
+				$chatInfo = telegram_getChatInfo($chat);
+
+				if (empty($chatInfo)) {
+					error_log('Error while getting chat info!');
+					telegram_sendMessage('Could not get chat info!', $adminChatId);
+				} else {
+					if ($chatInfo['type'] === 'channel') {
+						$storedChatInfo = config_getChatById($chat);
+						if (empty($storedChatInfo)) {
+							config_addChat($chat, $chatInfo);
+							config_setVal('chanman_tmp_key', 0);
+
+							curl_request('deleteMessage', 'get', Array('chat_id' => $chat, 'message_id' => $messageId));
+							telegram_sendMessage(sprintf('Successfully added channel `%s` to following channels list!', $chatInfo['title']), $adminChatId);
+						} else {
+							config_setVal('chanman_tmp_key', 0);
+							telegram_sendMessage('This channel is already followed by Crawley. Remove this message ASAP.', $chat);
+						}
+					} else {
+						config_setVal('chanman_tmp_key', 0);
 						telegram_sendMessage('Crawley supports channels only for now.', $chat);
 					}
 				}
@@ -235,7 +258,7 @@ CRAWLEY;
 	switch ($commands[0]) {
 		case 'getkey': 
 			$setchatNonce = mknonce(8);
-			config_setVal ('setchannel_tmp_key', $setchatNonce);
+			config_setVal ('chanman_tmp_key', $setchatNonce);
 
 			telegram_sendMessage("Your chat setting temporary key is `".$setchatNonce."`.\n" .
 							"Send the command `/setchat ".$setchatNonce."` to the channel you want to connect with Crawley and I will follow it and save its content.", $chat);
