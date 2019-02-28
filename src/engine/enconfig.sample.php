@@ -13,6 +13,7 @@
 define ('CONTENT_URL_PREFIX', 'https://crawley.example.com/content'); // no trailing slash!
 define ('CONTENT_MAX_AMOUNT', 100); // max records to be returned by API
 define ('CONTENT_DEFAULT_AMOUNT', 10);
+define ('CONTENT_SHOW_ALL', false); // show all entries when no channel ID is specified or throw an error
 define ('CORS_ALLOW_EXTERNAL', true); // allow cross-origin requests
 
 // Database

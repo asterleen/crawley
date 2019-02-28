@@ -14,6 +14,10 @@ function post_processRequest() {
 	$offset = (int)$_GET['offset'];
 	$channel = (int)$_GET['channel'];
 
+	if ($channel === 0 && !CONTENT_SHOW_ALL) {
+		json_respond(4, 'No channel ID specified');
+	}
+
 	if ($amount < 0 || $offset < 0)
 		json_respond(3, 'Negative offset and amount are not supported');
 
@@ -59,6 +63,11 @@ function post_processRequest() {
 function post_processRss() {
 
 	$channel = (int)$_GET['channel'];
+
+	if ($channel === 0 && !CONTENT_SHOW_ALL) {
+		header ('HTTP/1.1 400 Bad Request');
+		json_respond(4, 'No channel ID specified');
+	}
 
 	$recordsRaw = db_getPosts(CONTENT_DEFAULT_AMOUNT, 0, $channel);
 	$records = Array();
