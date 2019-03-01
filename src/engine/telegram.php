@@ -38,7 +38,7 @@ function curl_downloadFile ($filepath, $destination) {
 	if (is_resource($destination)) {
 		$destres = $destination;
 	} else {
-		$destres = fopen($dest, 'w');
+		$destres = fopen($destination, 'w');
 	}
 
 	if($curl)
