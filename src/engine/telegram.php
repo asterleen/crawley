@@ -358,8 +358,9 @@ function telegram_processMessage($message, $isEdit, $isFromChannel) {
 				if ($text === '-') { // artifical removal, Telegram does not send delete event
 					db_deletePost($chat, $post);
 					curl_request('deleteMessage', 'get', Array('chat_id' => $chat, 'message_id' => $post));
-				} else
+				} else {
 					db_updatePost($chat, $post, $text);
+				}
 			} else {
 
 				// It's better to send errors to admin rather than to the channel
