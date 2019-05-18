@@ -5,7 +5,7 @@ Crawley allows you to use your Telegram channel as a news feed for your website.
 **Quick links**: [Configuration](docs/configuration.md) |  [User's manual & API](docs/usage.md) | [Config file](docs/enconfig.md)
 
 ## What is Crawley made for?
-Crawley stores your Telegram channel feed into its internal database and keeps it updated via Telegram Bot API and its webhooks. It can be used as a news source for your website as well as an RSS feed. Crawley is a gate between your website and your Telegram channel that allows users which do not have a Telegram account stay in touch with you. Crawley is only and API and therefore it's highly customizable, just get Crawley's JSON and build your news page as you want!
+Crawley stores your Telegram channel feed into its internal database and keeps it updated via Telegram Bot API and its webhooks. It can be used as a news source for your website as well as an RSS feed. Crawley is a gate between your website and your Telegram channel that allows users which do not have a Telegram account stay in touch with you. Crawley is only an API and therefore it's highly customizable, just get Crawley's JSON and build your news page as you want!
 
 ## Installation
 ### Prerequisites

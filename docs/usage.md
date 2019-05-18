@@ -8,13 +8,18 @@ Telegram servers do not send update events when you delete messages from the cha
 Crawley generates and sends simple syndication feeds known as RSS. To get it, just perform a GET request to `/rss.xml` of your Crawley installation. It supports attachments as well.
 
 ## API
-Crawley provides a simple API to get the posts from its database. Just make a GET request at `/post` endpoint and Crawley will respond you with a JSON object of the posts. Posts are sorted by timestamp in an descending order. You also can add `amount` and `offset` parameters for pagination purposes: `amount` limits the maximal amount of returned posts, `offset` skips posts.  
+Crawley provides a simple API to get the posts from its database. Just make a GET request at `/post` endpoint and Crawley will respond you with a JSON object of the posts. Posts are sorted by timestamp in an descending order. You also can add `amount` and `offset` parameters for pagination purposes: `amount` limits the maximal amount of returned posts, `offset` skips posts. If `CONTENT_SHOW_ALL` is set to false, a `channel` parameter is required.
 The most complicated request will look like this:
 ```
-https://example.com/crawley/post?amount=10&offset=32
+https://example.com/crawley/post?amount=10&offset=32&channel=-31337420228
 ```
 
-The structure of the returned object looks like this:
+Or, for a single post (`channel` is mandatory independently from `CONTENT_SHOW_ALL`):
+```
+https://example.com/crawley/post?channel=-31337420228&post=32
+```
+
+The structure of the returned object looks like this (both for single or multiple posts):
 ```
 {
     "status": 0,
@@ -79,3 +84,5 @@ The following table describe every JSON (sub)object of Crawley's responses.
 | 1 | Too many posts requested, `amount` value exceeds `CONTENT_MAX_AMOUNT` setting |
 | 2 | No records, either database is empty or `offset` is too big |
 | 3 | Bad `offset` or `amount` values |
+| 4 | No `channel` set (when required) |
+| 5 | Bad `post` parameter (should be a positive integer) |

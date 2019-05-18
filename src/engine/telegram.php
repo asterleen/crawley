@@ -251,7 +251,7 @@ CRAWLEY;
 			config_setVal ('chanman_tmp_key', $setchatNonce);
 
 			telegram_sendMessage("Your chat setting temporary key is `".$setchatNonce."`.\n" .
-							"Send the command `/setchat ".$setchatNonce."` to the channel you want to connect with Crawley and I will follow it and save its content.", $chat);
+							"Send the command `/addchat ".$setchatNonce."` to the channel you want to connect with Crawley and I will follow it and save its content.", $chat);
 			break;
 
 		case 'purge':

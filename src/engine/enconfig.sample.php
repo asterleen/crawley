@@ -29,7 +29,6 @@ define ('TELEGRAM_USE_DIRECT_RESPONSE', true); // respond directly or use HTTP A
 define ('TELEGRAM_CONTENT_SAVE_PATH', '/srv/www/crawley/content'); // no trailing slash!
 define ('TELEGRAM_UBER_ADMIN_UID', 313371488); // Your Telegram internal ID, Crawley will accept commands only from you
 
-
 // RSS Feed
 define ('RSS_TITLE', 'Crawley RSS Feed');
 define ('RSS_URL', 'https://crawley.example.com'); // where Crawley or your website is placed

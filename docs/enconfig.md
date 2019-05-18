@@ -7,6 +7,7 @@ The `enconfig.php` file describes the core configuration of Crawley. It contains
 | `CONTENT_URL_PREFIX` | Used to determine your domain name and path. Crawley sends full URLs in API when sending the posts |
 | `CONTENT_MAX_AMOUNT` | Maximal amount of posts that can be obtained via API |
 | `CONTENT_DEFAULT_AMOUNT` | Default posts amount for the API |
+| `CONTENT_SHOW_ALL` | Allow showing the posts from all the channels or require a `channel` parameter |
 | `CORS_ALLOW_EXTERNAL` | Allow websites to perform CORS requests to Crawley |
 | `DB_HOST` | Database hostname |
 | `DB_NAME` | Database name |
