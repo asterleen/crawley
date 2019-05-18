@@ -22,7 +22,7 @@ function db_getPostCount($post_chat_id = 0) {
 }
 
 function db_getPostById($post_chat_id, $post_message_id) {
-	return sqlQuery('SELECT *, unix_timestamp(post_timestamp) as post_ts FROM post LEFT JOIN attach ON post.post_attach = attach.attach_id WHERE post_chat_id = ? AND post_message_id = ?', $post_chat_id, $post_chat_id)->fetchAll();
+	return sqlQuery('SELECT *, unix_timestamp(post_timestamp) as post_ts FROM post LEFT JOIN attach ON post.post_attach = attach.attach_id WHERE post_chat_id = ? AND post_message_id = ?', $post_chat_id, $post_message_id)->fetchAll();
 }
 
 function db_getPosts($limit, $offset, $post_chat_id = 0) {

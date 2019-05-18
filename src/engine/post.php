@@ -10,29 +10,49 @@
 function post_processRequest() {
 	global $route;
 
-	$amount = (int)$_GET['amount'];
-	$offset = (int)$_GET['offset'];
 	$channel = (int)$_GET['channel'];
+	$offset = 0;
+	$recordsCount = 0;
 
-	if ($channel === 0 && !CONTENT_SHOW_ALL) {
+	if ($channel === 0 && (!CONTENT_SHOW_ALL || !empty($_GET['post']))) {
 		json_respond(4, 'No channel ID specified');
 	}
 
-	if ($amount < 0 || $offset < 0)
-		json_respond(3, 'Negative offset and amount are not supported');
+	$recordsRaw = Array();
 
-	if ($amount > CONTENT_MAX_AMOUNT)
-		json_respond (1, 'Too large records amount requested');
+	if (empty($_GET['post'])) { // processing as an array of posts
+		$amount = (int)$_GET['amount'];
+		$offset = (int)$_GET['offset'];
 
-	if ($amount === 0)
-		$amount = CONTENT_DEFAULT_AMOUNT;
+		if ($amount < 0 || $offset < 0)
+			json_respond(3, 'Negative offset and amount are not supported');
 
-	$recordsCount = db_getPostCount($channel);
+		if ($amount > CONTENT_MAX_AMOUNT)
+			json_respond (1, 'Too large records amount requested');
 
-	if ($offset >= $recordsCount)
-		json_respond (2, 'No records');
+		if ($amount === 0)
+			$amount = CONTENT_DEFAULT_AMOUNT;
 
-	$recordsRaw = db_getPosts($amount, $offset, $channel);
+		$recordsCount = db_getPostCount($channel);
+
+		if ($offset >= $recordsCount)
+			json_respond (2, 'No records');
+
+		$recordsRaw = db_getPosts($amount, $offset, $channel);
+	} else { // processing as a single post request
+		$postId = (int)$_GET['post'];
+
+		if ($postId <= 0)
+			json_respond(5, 'Bad post ID');
+
+		$recordsRaw = db_getPostById($channel, $postId);
+
+		if (empty($recordsRaw))
+			json_respond(2, 'No records');
+
+		$recordsCount = 1;
+	}
+
 	$records = Array();
 
 	foreach ($recordsRaw as $post) {
