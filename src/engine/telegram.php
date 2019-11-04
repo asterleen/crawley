@@ -323,8 +323,6 @@ function telegram_processAttach($message) {
 		return null;
 	}
 
-	error_log(print_r($message, true));
-
 	$attachObject = db_getAttach($filename);
 	$attachId = 0;
 
