@@ -40,7 +40,8 @@ CREATE SEQUENCE seq_attach_id
 CREATE TABLE attach (
     attach_id integer DEFAULT nextval('seq_attach_id'::regclass) NOT NULL,
     attach_type_tag character varying(16) NOT NULL,
-    attach_filename character varying(256) NOT NULL
+    attach_filename character varying(256) NOT NULL,
+    attach_metadata character varying(256)
 );
 
 

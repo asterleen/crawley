@@ -65,8 +65,11 @@ function db_getAttaches() {
 	return sqlQuery('SELECT * FROM attach')->fetchAll();
 }
 
-function db_saveAttach($attach_filename, $attach_type_tag) {
-	sqlQuery('INSERT INTO attach (attach_filename, attach_type_tag) VALUES (?, ?)', $attach_filename, $attach_type_tag);
+function db_saveAttach($attach_filename, $attach_type_tag, $attach_metadata = null) {
+
+	error_log('DATABASE_ATTACH_META: ' . $attach_metadata);
+
+	sqlQuery('INSERT INTO attach (attach_filename, attach_type_tag, attach_metadata) VALUES (?, ?, ?)', $attach_filename, $attach_type_tag, $attach_metadata);
 	return getLastInsertId('seq_attach_id');
 }
 

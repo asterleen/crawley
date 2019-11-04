@@ -66,6 +66,7 @@ function post_processRequest() {
 			$newRecord['attachment'] = Array (
 				'id' => $post['attach_id'],
 				'type' => $post['attach_type_tag'],
+				'meta' => $post['attach_metadata'],
 				'url' => CONTENT_URL_PREFIX . '/' . $post['attach_type_tag'] . '/' . $post['attach_filename']
 			);
 		}

@@ -75,6 +75,7 @@ The following table describe every JSON (sub)object of Crawley's responses.
 | ------------ | ------------ |
 | `id` | Unique ID of the attachment. Generated internally |
 | `type` | Attachment type. Can be `photo`, `voice` or `audio` |
+| `meta` | Attachment metadata like artist and title (applicable to `audio` attaches only) |
 | `url` | Full URL pointing to the attachment content |
 
 #### Status codes

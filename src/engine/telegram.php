@@ -323,11 +323,27 @@ function telegram_processAttach($message) {
 		return null;
 	}
 
+	error_log(print_r($message, true));
+
 	$attachObject = db_getAttach($filename);
 	$attachId = 0;
 
 	if ($attachObject === false) {
-		$attachId = db_saveAttach($filename, $attachType);
+		$attachMetadata = null;
+
+		if ($attachType === 'audio') {
+			if (!empty($downloadableObject['title'])) {
+				if (!empty($downloadableObject['performer'])) {
+					$attachMetadata = $downloadableObject['performer'] . ' - ' . $downloadableObject['title'];
+				} else {
+					$attachMetadata = $downloadableObject['title'];
+				}
+			} elseif (!empty($downloadableObject['file_name'])) {
+				$attachMetadata = $downloadableObject['file_name'];
+			}
+		}
+
+		$attachId = db_saveAttach($filename, $attachType, $attachMetadata);
 	} else {
 		error_log('Attach #'.$attachObject['attach_id'].' ['.$attachObject['attach_filename'].'] is being reused');
 		$attachId = $attachObject['attach_id'];
